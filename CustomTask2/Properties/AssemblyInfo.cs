@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AutoDependencyVersion")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("ImplicitPackageReference")]
+[assembly: AssemblyDescription("ImplicitPackageReference")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Find the versioning of dependencies implicitly")]
 [assembly: AssemblyProduct("AutoDependencyVersion")]
 [assembly: AssemblyCopyright("AutoDependencyVersion ©  2019")]
 [assembly: AssemblyTrademark("")]

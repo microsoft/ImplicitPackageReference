@@ -1,9 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 
-<UsingTask AssemblyFile="C:\Users\cowardel\source\repos\CustomTasks\CustomTask2\bin\Debug\CustomTask2.dll" TaskName="AutoDependency" />
+<UsingTask AssemblyFile="C:\Users\cowardel\source\repos\CustomTasks\CustomTask2\bin\Debug\CustomTask2.dll" TaskName="ImplicitPackageReference" />
 
-<Target Name="AutoVersion" BeforeTargets="$(PackDependsOn)">
-  <Message Text="@(AutoVersionDependency)" />
-  <AutoDependency Path="$(ProjectAssetsFile)" Search="@(AutoVersionDependency)" />
-
+<Target Name="ImplicitPackageReference" BeforeTargets="$(PackDependsOn)">
+  <AutoDependency Path="$(ProjectAssetsFile)" Search="@(ImplicitPackageReference)" />
 </Target>
