@@ -8,14 +8,19 @@ using Microsoft.Build.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace CustomTask2
+namespace CleverName
 {
 	public class ImplicitPackageReference : ITask
 	{
+        /// <summary>
+        /// Takes a list of dependencies to look up the versions and add them to the project.assets.json file for packaging.
+        /// </summary>
+        /// <param name="AssetsFilePath">This is a path to the project.assets.json from which the implicit versions for dependinces will be found</param>
+        /// <param name="PackagesToSearch"> This is a strong of packages that are ; seperated that need versions</param>
 
-		[Required]
+        [Required]
         public string AssetsFilePath { get; set; }
-        //[Required]
+        [Required]
 		public string PackagesToSearch { get; set; }
 
 		[Output]
@@ -30,8 +35,6 @@ namespace CustomTask2
 			if (fi.Exists)
 			{
                 JObject AssetsFile = JObject.Parse(File.ReadAllText(AssetsFilePath));
-
-                if (PackagesToSearch == null) return true;
 
                 foreach (string package in PackagesToSearch.Split(';'))
                 {
@@ -73,6 +76,7 @@ namespace CustomTask2
             }
 			else
 			{
+                //BuildEngine.LogErrorEvent(new BuildErrorEventArgs("Missing FIle",)
 				BuildEngine.LogMessageEvent(new BuildMessageEventArgs(AssetsFilePath + " could not be found", "Check", "FileCheck", MessageImportance.High));
                 return false;
 			}
