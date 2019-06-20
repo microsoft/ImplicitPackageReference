@@ -72,7 +72,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Fakes Include="Fakes\Microsoft.Build.Utilities.v4.0.fakes" />
     <None Include="MissingLibrary.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
