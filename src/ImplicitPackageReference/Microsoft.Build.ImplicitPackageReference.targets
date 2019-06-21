@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project>
+  <PropertyGroup>
+    <PackDependsOn>$(PackDependsOn);ImplicitPackageReferenceBuildTask</PackDependsOn>
+  </PropertyGroup>
+  
+  <UsingTask AssemblyFile="Microsoft.Build.ImplicitPackageReference.dll"
+             TaskName="ImplicitPackageReferenceBuildTask"/>
+  
+  <Target Name="ImplicitPackageReferenceBuildTask">
+    <ImplicitPackageReference AssetsFilePath="$(ProjectAssetsFile)" DependenciesToVersionAndPackage="@(ImplicitPackageReference)" Condition="@(ImplicitPackageReference)!= ''" />
+  </Target>
+</Project>
+
