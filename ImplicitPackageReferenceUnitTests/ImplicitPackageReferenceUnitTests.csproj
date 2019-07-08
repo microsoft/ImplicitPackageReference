@@ -75,6 +75,9 @@
     <None Include="MissingLibrary.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="netcoreSample.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="VersionlessPackage.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -19,4 +19,6 @@ All one must do to use ImplicitPackageReference is import the Nuget Package. The
 
 <ImplicitPackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
 
-ImplicitPacageReference will make sure that package is packed into your Nuget package you are creating. This will only work if the package you are looking for is a dependency of one of your dependency. If the package is not found, the build will fail.
+ImplicitPacageReference will make sure that package is packed into your Nuget package you are creating. This will only work if the package you are looking for is a dependency of one of your dependencies. If the package is not found, the build will fail.
+
+ImplicitPackageReference has one metadata attribute that can be set. If what dependencies it has needs to be controlled, the PrivateAssets attribute can be set to any approved setting specified in https://docs.microsoft.com/en-us/nuget/consume-packages/package-references-in-project-files

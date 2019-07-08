@@ -29,7 +29,7 @@ namespace Microsoft.Build.ImplicitPackageReference
         public string AssetsFilePath { get; set; }
         /// <DependenciesToVersionAndPackage>This is a string of packages that are ; separated that need versions</DependenciesToVersionAndPackage>
         [Required]
-        public Microsoft.Build.Utilities.TaskItem[] DependenciesToVersionAndPackage { get; set; }
+        public ITaskItem[] DependenciesToVersionAndPackage { get; set; }
 
         private bool versionlessPackagesFound = false;
 

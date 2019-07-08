@@ -8,7 +8,7 @@
              TaskName="ImplicitPackageReferenceBuildTask"/>
   
   <Target Name="ImplicitPackageReferenceBuildTask">
-    <ImplicitPackageReference AssetsFilePath="$(ProjectAssetsFile)" DependenciesToVersionAndPackage="@(ImplicitPackageReference)" Condition="@(ImplicitPackageReference)!= ''" />
+    <ImplicitPackageReferenceBuildTask AssetsFilePath="$(ProjectAssetsFile)" DependenciesToVersionAndPackage="@(ImplicitPackageReference)" Condition="@(ImplicitPackageReference)!= ''" />
   </Target>
 </Project>
 

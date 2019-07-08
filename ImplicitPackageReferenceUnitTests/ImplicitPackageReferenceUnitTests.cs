@@ -43,6 +43,24 @@ namespace ImplicitPackageReferenceUnitTests
         }
 
         [TestMethod]
+        [DeploymentItem(@"netcoreSample.json")]
+        public void WhenTaskIsGivenSinglePackageInNetCoreFrameworkTaskShouldEditJsonFileAndReturnTrue()
+        {
+            var implicitPacker = new ImplicitPackageReferenceBuildTask(log);
+            TaskItem implicitDependeny = new Microsoft.Build.Utilities.TaskItem("Microsoft.NETCore.Platforms");
+            implicitPacker.AssetsFilePath = "netcoreSample.json";
+            implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependeny };
+
+            JObject assetsFile = JObject.Parse(File.ReadAllText("netcoreSample.json"));
+            Assert.IsNull(assetsFile["project"]["frameworks"]["netcoreapp2.1"]["dependencies"]["Microsoft.NETCore.Platforms"]);
+
+            Assert.IsTrue(implicitPacker.Execute());
+
+            assetsFile = JObject.Parse(File.ReadAllText("netcoreSample.json"));
+            Assert.AreEqual("[2.1.0, )", assetsFile["project"]["frameworks"]["netcoreapp2.1"]["dependencies"]["Microsoft.NETCore.Platforms"]["version"]);
+        }
+
+        [TestMethod]
         [DeploymentItem(@"test.project.assets.json")]
         public void WhenTaskIsGivenMultiplePackagesTaskShouldEditJsonFileAndReturnTrue()
         {
