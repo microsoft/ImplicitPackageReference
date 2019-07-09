@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace ImplicitPackageReferenceSample
 {
@@ -6,7 +8,9 @@ namespace ImplicitPackageReferenceSample
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var testOject = JObject.Parse(File.ReadAllText("test.json"));
+            Console.WriteLine(testOject["message"]);
+            Console.ReadLine();
         }
     }
 }

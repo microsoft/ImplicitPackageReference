@@ -83,15 +83,17 @@ namespace Microsoft.Build.ImplicitPackageReference
                         if (nameAndVersion[0] == package.ItemSpec)
                         {
                             JObject versionedDependency = new JObject();
-                            versionedDependency.Add("target", "Package");
+                            
                             if (package.GetMetadata("PrivateAssets") == "")
                             {
+                                versionedDependency.Add("suppressParent", "None");
+                                versionedDependency.Add("target", "Package");
                                 versionedDependency.Add("version", "[" + nameAndVersion[1] + ", )");
-                                versionedDependency.Add("suppressParent", "none");
                             }
                             else
                             {
                                 versionedDependency.Add("suppressParent", package.GetMetadata("PrivateAssets"));
+                                versionedDependency.Add("target", "Package");
                                 versionedDependency.Add("version", "[" + nameAndVersion[1] + ", )");
                             }
                             
