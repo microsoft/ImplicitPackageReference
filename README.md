@@ -11,12 +11,12 @@ The proper way to create a NuGet package requires the NuGet author to declare al
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>NeatLibrary</AssemblyName>
-	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-	</ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    </ItemGroup>
 </Project>
 ```
 This project will indirectly pull in the *Microsoft.Extensions.Configuration* NuGet package as a sub-dependency of *Microsoft.AspNetCore*.
@@ -55,15 +55,15 @@ ImplicitPackageReference allows declaring direct NuGet dependencies on transitiv
   <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
       <AssemblyName>NeatLibrary</AssemblyName>
-	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="Microsoft.Build.ImplicitPackageReference" /> <!-- Add Support for ImplicitPackageReferences -->
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Build.ImplicitPackageReference" /> <!-- Add Support for ImplicitPackageReferences -->
 
-	  <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" PrivateAssets="All" /> <!-- Sets PrivateAsssets to exclude as a declared dependency in the publishing NuGet package -->
-	  <ImplicitPackageReference Include="Microsoft.Extensions.Configuration.Abstractions" /> <!-- Direct Dependency the Neat.cs uses -->
-	</ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" PrivateAssets="All" /> <!-- Sets PrivateAsssets to exclude as a declared dependency in the publishing NuGet package -->
+      <ImplicitPackageReference Include="Microsoft.Extensions.Configuration.Abstractions" /> <!-- Direct Dependency the Neat.cs uses -->
+    </ItemGroup>
 </Project>
 ```
 
