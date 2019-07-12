@@ -15,40 +15,40 @@ The proper way to create a NuGet package requires the NuGet author to declare al
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+	  <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
 	</ItemGroup>
 </Project>
 ```
-This code will indirectly pull in the *Microsoft.Extensions.Configuration* NuGet package that is used by the code for NeatLibrary.dll.
+This project will indirectly pull in the *Microsoft.Extensions.Configuration* NuGet package as a sub-dependency of *Microsoft.AspNetCore*.
  
-In this example, the NeatLibrary code only uses the  *Microsoft.Extensions.Configuration.IConfiguration*  class -- nothing else. This class comes from the  *Microsoft.Extensions.Configuration.Abstractions* NuGet package.
+In this example, the NeatLibrary code only uses the  *Microsoft.Extensions.Configuration.IConfiguration* class -- nothing else. This class comes from the  *Microsoft.Extensions.Configuration.Abstractions* NuGet package.
 
-The resulting *NeatLibrary* NuGet package would declare a dependency on *Microsoft.AspNetcore* >= 2.2.0. This forces the NeatLibrary  consumers to pull the entire *Microsoft.AspNetCore* dependency tree. While this works, it is not correct. It should only declare a dependency on *Microsoft.Extensions.Configuration.Abstractions* package.
+With the current project files, the resulting *NeatLibrary* NuGet package would incorrectly declare a dependency on *Microsoft.AspNetcore* >= 2.2.0. This forces the NeatLibrary consumers to pull the entire *Microsoft.AspNetCore* dependency tree. While this works, it is not correct. It should only declare a dependency on *Microsoft.Extensions.Configuration.Abstractions* package.
 
 ## Solving without ImplicitPackageReference
-The work-around for this is to declare the direct dependencies with PackageReferences:
+The work-around for this is to specifically declare the direct dependencies with PackageReferences:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
-	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" PrivateAssets="All" /> <!-- Set PrivateAssets or completely remove this PackageReference -->
-		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.2.0" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" PrivateAssets="All" /> <!-- Set PrivateAssets or completely remove this PackageReference -->
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.2.0" />
+  </ItemGroup>
 </Project>
 ```
 
-This works, but introduces another problem. If the author wants to upgrade to *Microsoft.AspNetCore* 2.3.0 then NuGet package manager will require the author to manually upgrade all transitive dependencies, like *Microsoft.Extensions.Configuration.Abstractions*, first. With a large set of direct dependencies this becomes a chore.
+This works, but introduces another problem. If the author wants to upgrade to *Microsoft.AspNetCore* 2.3.0 then NuGet package manager will require the author to learn the versions and manually upgrade all transitive dependencies, like *Microsoft.Extensions.Configuration.Abstractions*, first. With a large set of direct dependencies this becomes a chore.
 
-As NuGet authors we want the ability to pull in a higher-level package like (*Microsoft.AspNetCore*) and still declare dependencies on transitive dependencies without having to know the exact version of those transitive dependencies or having to update those in a certain order to upgrade my dependencies.
+A NuGet author wants the ability to pull in a higher-level package like (*Microsoft.AspNetCore*) and still declare dependencies on transitive dependencies without having to know the exact version of those transitive dependencies or having to upgrade those in a certain order.
 
 ## Solution
-ImplicitPackageReference allows declaring direct NuGet dependencies on transitive dependencies. The NuGet author does not need to know the exact version of the sub-dependency when pulling it in transitively.
+ImplicitPackageReference allows declaring direct NuGet dependencies on transitive dependencies that came in implicitly. The NuGet author does not need to know the exact version of the sub-dependency when pulling it in implicitly.
 
 ### Usage
 
-1. To use ImplicitPackageReference, then pull in the _Microsoft.Build.ImplicitPackageReference_ NuGet package
+1. To use ImplicitPackageReference, import the _Microsoft.Build.ImplicitPackageReference_ NuGet package
 2. Specify ImplicitPackageReference for each sub-dependency that needs to be declared as a direct dependency of the NuGet package that is being published
-3. Set PrivateAssets="All" on all PackageReference tags that are not direct dependencies of the NuGet package that is being published
+3. Set PrivateAssets="All" on all PackageReference tags that are not direct dependencies of the publishing NuGet package
 
 ### Example Usage
 ```xml
@@ -59,10 +59,10 @@ ImplicitPackageReference allows declaring direct NuGet dependencies on transitiv
     </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Build.ImplicitPackageReference" /> <!-- Add Support for ImplicitPackageReferences -->
+	  <PackageReference Include="Microsoft.Build.ImplicitPackageReference" /> <!-- Add Support for ImplicitPackageReferences -->
 
-		<PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" PrivateAssets="All" /> <!-- Sets PrivateAsssets to exclude as a declared dependency in the publishing NuGet package -->
-		<ImplicitPackageReference Include="Microsoft.Extensions.Configuration.Abstractions" /> <!-- Direct Dependency the Neat.cs uses -->
+	  <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" PrivateAssets="All" /> <!-- Sets PrivateAsssets to exclude as a declared dependency in the publishing NuGet package -->
+	  <ImplicitPackageReference Include="Microsoft.Extensions.Configuration.Abstractions" /> <!-- Direct Dependency the Neat.cs uses -->
 	</ItemGroup>
 </Project>
 ```
