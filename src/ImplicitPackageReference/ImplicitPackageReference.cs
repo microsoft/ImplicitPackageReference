@@ -3,20 +3,19 @@
 //     Copyright © Microsoft Corporation. All rights reserved.
 // </copyright>
 // ------------------------------------------------------------------------------
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Resources;
-using System.Text;
-using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 namespace Microsoft.Build.ImplicitPackageReference
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Resources;
+    using System.Text;
+    using Microsoft.Build.Framework;
+    using Microsoft.Build.Utilities;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+
     public class ImplicitPackageReferenceBuildTask : Task
     {
         /// <summary>
@@ -55,26 +54,27 @@ namespace Microsoft.Build.ImplicitPackageReference
                 try
                 {
                     AssetsFile = JObject.Parse(File.ReadAllText(AssetsFilePath));
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     log.LogError("ImplicitPackageReferenceBuildTask failed, could not parse file " + AssetsFilePath + ". Exception:" + e.Message);
                     return false;
                 }
-                
+
                 foreach (var package in DependenciesToVersionAndPackage)
                 {
                     bool found = false;
-                    if(AssetsFile["libraries"] == null)
+                    if (AssetsFile["libraries"] == null)
                     {
-                        log.LogError("ImplicitPackageReferenceBuildTask failed, " +AssetsFilePath + " missing Libraries section.");
+                        log.LogError("ImplicitPackageReferenceBuildTask failed, " + AssetsFilePath + " missing Libraries section.");
                         return false;
                     }
-                    
+
                     foreach (var library in AssetsFile["libraries"].Children<JProperty>())
                     {
                         //Name is index [0], Version is index [1]
                         string[] nameAndVersion = library.Name.Split('/');
-                        if(nameAndVersion.Length != 2)
+                        if (nameAndVersion.Length != 2)
                         {
                             log.LogError("ImplicitPackageReferenceBuildTask failed, " + AssetsFilePath + " formatted incorrectly");
                             return false;
@@ -83,7 +83,7 @@ namespace Microsoft.Build.ImplicitPackageReference
                         if (nameAndVersion[0] == package.ItemSpec)
                         {
                             JObject versionedDependency = new JObject();
-                            
+
                             if (package.GetMetadata("PrivateAssets") == "")
                             {
                                 versionedDependency.Add("suppressParent", "None");
@@ -96,7 +96,7 @@ namespace Microsoft.Build.ImplicitPackageReference
                                 versionedDependency.Add("target", "Package");
                                 versionedDependency.Add("version", "[" + nameAndVersion[1] + ", )");
                             }
-                            
+
                             foreach (var framework in AssetsFile["project"]["frameworks"].Children<JProperty>())
                             {
                                 if (framework.Value["dependencies"][package.ItemSpec] == null)
@@ -118,7 +118,7 @@ namespace Microsoft.Build.ImplicitPackageReference
 
                 if (versionlessPackagesFound)
                 {
-                    log.LogError("ImplicitPackageReferenceBuildTask failed, could not find packages in known dependencies for: " + namesOfVersionlessPackages.Substring(0,namesOfVersionlessPackages.Length-1));
+                    log.LogError("ImplicitPackageReferenceBuildTask failed, could not find packages in known dependencies for: " + namesOfVersionlessPackages.Substring(0, namesOfVersionlessPackages.Length - 1));
                     return false;
                 }
                 try
@@ -132,7 +132,7 @@ namespace Microsoft.Build.ImplicitPackageReference
                 }
                 catch (Exception e)
                 {
-                    log.LogError("ImplicitPackageReferenceBuildTask failed, failed to write out changes to " + AssetsFilePath + ". Exception:"  + e.Message);
+                    log.LogError("ImplicitPackageReferenceBuildTask failed, failed to write out changes to " + AssetsFilePath + ". Exception:" + e.Message);
                     return false;
                 }
             }
