@@ -1,5 +1,3 @@
-
-
 # ImplicitPackageReference
 Allows execution of a custom MSBuild targets file that will allow declaring transitive NuGet dependencies as direct NuGet dependencies.
 
