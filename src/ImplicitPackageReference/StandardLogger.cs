@@ -8,7 +8,7 @@ namespace Microsoft.Build.ImplicitPackageReference
 {
     using Microsoft.Build.Utilities;
 
-    public class StandardLogger : Logger
+    public class StandardLogger : ILogger
     {
         private TaskLoggingHelper myLogger;
 

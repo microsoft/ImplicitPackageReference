@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Project>
   <UsingTask AssemblyFile="Microsoft.Build.ImplicitPackageReference.dll"
-             TaskName="ImplicitPackageReferenceBuildTask"/>
+             TaskName="AddImplicitPackageReferences"/>
   
-  <Target Name="ImplicitPackageReferenceBuildTask" BeforeTargets="$(PackDependsOn)">
-    <ImplicitPackageReferenceBuildTask AssetsFilePath="$(ProjectAssetsFile)" DependenciesToVersionAndPackage="@(ImplicitPackageReference)" Condition="@(ImplicitPackageReference)!= ''" />
+  <Target Name="AddImplicitPackageReferences" BeforeTargets="$(PackDependsOn)" Condition="'@(ImplicitPackageReference)' != ''" >
+    <AddImplicitPackageReferences AssetsFilePath="$(ProjectAssetsFile)" DependenciesToVersionAndPackage="@(ImplicitPackageReference)" />
   </Target>
 </Project>
 

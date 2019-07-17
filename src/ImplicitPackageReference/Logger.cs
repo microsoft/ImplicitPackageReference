@@ -6,7 +6,7 @@
 
 namespace Microsoft.Build.ImplicitPackageReference
 {
-    public interface Logger
+    public interface ILogger
     {
         void LogError(string message);
         void LogMessage(string message);

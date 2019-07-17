@@ -6,11 +6,11 @@
 
 namespace Microsoft.Build.ImplicitPackageReference
 {
-    public class TestLogger : Logger
+    public class TestLogger : ILogger
     {
-        string ErrorMessage = "";
-        string WarningMessage = "";
-        string standardMessage = "";
+        public string ErrorMessage = "";
+        public string WarningMessage = "";
+        public string standardMessage = "";
 
         public void LogError(string message)
         {
@@ -25,11 +25,6 @@ namespace Microsoft.Build.ImplicitPackageReference
         public void LogWarning(string message)
         {
             WarningMessage = message;
-        }
-
-        public string GetError()
-        {
-            return ErrorMessage;
         }
     }
 }
