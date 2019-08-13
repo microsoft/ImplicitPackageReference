@@ -4,7 +4,7 @@
              TaskName="AddImplicitPackageReferences"/>
   
   <Target Name="AddImplicitPackageReferences" BeforeTargets="$(PackDependsOn)" Condition="'@(ImplicitPackageReference)' != ''" >
-    <AddImplicitPackageReferences AssetsFilePath="$(ProjectAssetsFile)" DependenciesToVersionAndPackage="@(ImplicitPackageReference)" />
+    <AddImplicitPackageReferences AssetsFilePath="$(ProjectAssetsFile)" DependenciesToVersionAndPackage="@(ImplicitPackageReference);$(AutoVersionDependency)" />
   </Target>
 </Project>
 

@@ -5,7 +5,7 @@
     <AssemblyName>Microsoft.Build.ImplicitPackageReference</AssemblyName>
     <TargetFramework>net461</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.15</Version>
+    <Version>1.1.16</Version>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <Description>Allows execution of a custom MSBuild targets file that will allow declaring transitive NuGet dependencies as direct NuGet dependencies.</Description>
     <Copyright>Copyright © Microsoft Corporation. All rights reserved.</Copyright>
