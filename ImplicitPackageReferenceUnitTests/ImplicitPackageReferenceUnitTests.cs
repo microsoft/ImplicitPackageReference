@@ -5,7 +5,6 @@
 // ------------------------------------------------------------------------------
 
 using System.IO;
-using Microsoft.Build.Framework;
 using Microsoft.Build.ImplicitPackageReference;
 using Microsoft.Build.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
