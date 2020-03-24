@@ -6,6 +6,7 @@
 namespace Microsoft.Build.ImplicitPackageReference
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Text;
     using Microsoft.Build.Framework;
@@ -30,6 +31,9 @@ namespace Microsoft.Build.ImplicitPackageReference
         [Required]
         public ITaskItem[] DependenciesToVersionAndPackage { get; set; }
 
+        [Output]
+        public ITaskItem[] Result { get; set; }
+
         private ILogger log { get; set; }
 
         public AddImplicitPackageReferences() : base()
@@ -44,7 +48,8 @@ namespace Microsoft.Build.ImplicitPackageReference
 
         public override bool Execute()
         {
-            if(DependenciesToVersionAndPackage.Length == 0)
+            List<ITaskItem> dependency = new List<ITaskItem>();
+            if (DependenciesToVersionAndPackage.Length == 0)
             {
                 log.LogWarning("AddImplicitPackageReferences was not given any packages to version");
                 return true;
@@ -54,6 +59,7 @@ namespace Microsoft.Build.ImplicitPackageReference
                 bool versionlessPackagesFound = false;
                 StringBuilder namesOfVersionlessPackages = new StringBuilder();
                 JObject assetsFile;
+                
                 try
                 {
                     assetsFile = JObject.Parse(File.ReadAllText(AssetsFilePath));
@@ -86,6 +92,11 @@ namespace Microsoft.Build.ImplicitPackageReference
 
                         if (nameAndVersion[0] == package.ItemSpec)
                         {
+                            ITaskItem dependencyItem = new TaskItem(nameAndVersion[0]);
+                            dependencyItem.SetMetadata("Version", nameAndVersion[1]);
+                            // Add to result list
+                            dependency.Add(dependencyItem);
+
                             JObject versionedDependency = new JObject();
 
                             if (package.GetMetadata("PrivateAssets") == "")
@@ -106,7 +117,6 @@ namespace Microsoft.Build.ImplicitPackageReference
                                     assetsFile["project"]["frameworks"][framework.Name]["dependencies"][nameAndVersion[0]] = versionedDependency;
                                 }
                             }
-
                             found = true;
                             break;
                         }
@@ -143,7 +153,7 @@ namespace Microsoft.Build.ImplicitPackageReference
                 log.LogError("AddImplicitPackageReferences failed, could not find: " + AssetsFilePath);
                 return false;
             }
-
+            Result = dependency.ToArray();
             return true;
         }
     }

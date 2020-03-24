@@ -3,8 +3,14 @@
   <UsingTask AssemblyFile="Microsoft.Build.ImplicitPackageReference.dll"
              TaskName="AddImplicitPackageReferences"/>
   
-  <Target Name="AddImplicitPackageReferences" BeforeTargets="$(PackDependsOn)" Condition="'@(ImplicitPackageReference)' != ''" >
-    <AddImplicitPackageReferences AssetsFilePath="$(ProjectAssetsFile)" DependenciesToVersionAndPackage="@(ImplicitPackageReference);$(AutoVersionDependency)" />
+  <Target Name="BeforeBuild" Condition="'@(ImplicitPackageReference)' != ''" >
+    <AddImplicitPackageReferences AssetsFilePath="$(ProjectAssetsFile)" DependenciesToVersionAndPackage="@(ImplicitPackageReference);$(AutoVersionDependency)" >
+      <Output TaskParameter="Result"
+                  ItemName="PackageReference" />
+    </AddImplicitPackageReferences>
+    <ItemGroup>
+      <PackageReference/>
+    </ItemGroup>
+    <message text="running with ouput :@(IPR)"/>
   </Target>
 </Project>
-
