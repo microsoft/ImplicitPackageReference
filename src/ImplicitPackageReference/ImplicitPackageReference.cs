@@ -117,6 +117,57 @@ namespace Microsoft.Build.ImplicitPackageReference
                                     assetsFile["project"]["frameworks"][framework.Name]["dependencies"][nameAndVersion[0]] = versionedDependency;
                                 }
                             }
+                            //Add Project as dependency in ProjectFileDependency groups section of the project.assets.json file
+                            foreach (var frameworkSection in assetsFile["projectFileDependencyGroups"].Children<JProperty>())
+                            {
+                                foreach (var framework in frameworkSection.Children())
+                                {
+                                    var hasDependency = false;
+                                    foreach (var depend in framework.Children())
+                                    {
+                                        hasDependency = depend.ToString().Contains(nameAndVersion[0]);
+                                        if (hasDependency)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    if (!hasDependency)
+                                    {
+                                        assetsFile["projectFileDependencyGroups"][frameworkSection.Name].Last.AddAfterSelf(nameAndVersion[0] + " >= " + nameAndVersion[1]);
+                                    }
+                                }
+                            }
+
+                            //Add in missing DLL in Implicitly referened packages in the Targets Section
+                            foreach (var frameworksection in assetsFile["targets"].Children<JProperty>())
+                            {
+                                string newname = "";
+                                JToken newValue = null;
+                                foreach (var depend in assetsFile["targets"][frameworksection.Name][library.Name]["compile"])
+                                {
+                                    var depend2 = depend as Newtonsoft.Json.Linq.JProperty;
+                                    var index = depend2.Name.LastIndexOf('/');
+                                    var frontpart = depend2.Name.Substring(0, index);
+                                    newname = frontpart + "/" + nameAndVersion[0] + ".dll";
+                                    newValue = depend2.Value;
+                                }
+                                assetsFile["targets"][frameworksection.Name][library.Name]["compile"][newname] = newValue;
+                            }
+                            foreach (var frameworksection in assetsFile["targets"].Children<JProperty>())
+                            {
+                                string newname = "";
+                                JToken newValue = null;
+                                foreach (var depend in assetsFile["targets"][frameworksection.Name][library.Name]["runtime"])
+                                {
+                                    var depend2 = depend as Newtonsoft.Json.Linq.JProperty;
+                                    var index = depend2.Name.LastIndexOf('/');
+                                    var frontpart = depend2.Name.Substring(0, index);
+                                    newname = frontpart + "/" + nameAndVersion[0] + ".dll";
+                                    newValue = depend2.Value;
+                                }
+                                assetsFile["targets"][frameworksection.Name][library.Name]["runtime"][newname] = newValue;
+                            }
+
                             found = true;
                             break;
                         }

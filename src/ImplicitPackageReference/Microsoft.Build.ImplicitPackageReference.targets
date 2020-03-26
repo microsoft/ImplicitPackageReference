@@ -2,8 +2,8 @@
 <Project>
   <UsingTask AssemblyFile="Microsoft.Build.ImplicitPackageReference.dll"
              TaskName="AddImplicitPackageReferences"/>
-  
-  <Target Name="BeforeBuild" Condition="'@(ImplicitPackageReference)' != ''" >
+
+  <Target Name="AddImplicit" BeforeTargets="_CollectTargetFrameworkForTelemetry" Condition="'@(ImplicitPackageReference)' != ''" >
     <AddImplicitPackageReferences AssetsFilePath="$(ProjectAssetsFile)" DependenciesToVersionAndPackage="@(ImplicitPackageReference);$(AutoVersionDependency)" >
       <Output TaskParameter="Result"
                   ItemName="PackageReference" />
@@ -11,6 +11,6 @@
     <ItemGroup>
       <PackageReference/>
     </ItemGroup>
-    <message text="running with ouput :@(IPR)"/>
+    <message text="running with ouput :@(PackageReference)"/>
   </Target>
 </Project>
