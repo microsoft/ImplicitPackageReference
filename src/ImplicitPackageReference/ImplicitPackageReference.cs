@@ -139,34 +139,8 @@ namespace Microsoft.Build.ImplicitPackageReference
                             }
 
                             //Add in missing DLL in Implicitly referened packages in the Targets Section
-                            foreach (var frameworksection in assetsFile["targets"].Children<JProperty>())
-                            {
-                                string newname = "";
-                                JToken newValue = null;
-                                foreach (var depend in assetsFile["targets"][frameworksection.Name][library.Name]["compile"])
-                                {
-                                    var depend2 = depend as Newtonsoft.Json.Linq.JProperty;
-                                    var index = depend2.Name.LastIndexOf('/');
-                                    var frontpart = depend2.Name.Substring(0, index);
-                                    newname = frontpart + "/" + nameAndVersion[0] + ".dll";
-                                    newValue = depend2.Value;
-                                }
-                                assetsFile["targets"][frameworksection.Name][library.Name]["compile"][newname] = newValue;
-                            }
-                            foreach (var frameworksection in assetsFile["targets"].Children<JProperty>())
-                            {
-                                string newname = "";
-                                JToken newValue = null;
-                                foreach (var depend in assetsFile["targets"][frameworksection.Name][library.Name]["runtime"])
-                                {
-                                    var depend2 = depend as Newtonsoft.Json.Linq.JProperty;
-                                    var index = depend2.Name.LastIndexOf('/');
-                                    var frontpart = depend2.Name.Substring(0, index);
-                                    newname = frontpart + "/" + nameAndVersion[0] + ".dll";
-                                    newValue = depend2.Value;
-                                }
-                                assetsFile["targets"][frameworksection.Name][library.Name]["runtime"][newname] = newValue;
-                            }
+                            AddDLLBackIn(assetsFile, library, nameAndVersion, "compile");
+                            AddDLLBackIn(assetsFile, library, nameAndVersion,"runtime");
 
                             found = true;
                             break;
@@ -206,6 +180,25 @@ namespace Microsoft.Build.ImplicitPackageReference
             }
             Result = dependency.ToArray();
             return true;
+        }
+
+        private static void AddDLLBackIn(JObject assetsFile, JProperty library, string[] nameAndVersion,string area)
+        {
+            foreach (var frameworksection in assetsFile["targets"].Children<JProperty>())
+            {
+                Dictionary<string, JToken> resources = new Dictionary<string, JToken>();
+                foreach (var depend in assetsFile["targets"][frameworksection.Name][library.Name][area])
+                {
+                    var depend2 = depend as Newtonsoft.Json.Linq.JProperty;
+                    var index = depend2.Name.LastIndexOf('/');
+                    var frontpart = depend2.Name.Substring(0, index);
+                    resources[frontpart + "/" + nameAndVersion[0] + ".dll"] = depend2.Value;
+                }
+                foreach (var key in resources.Keys)
+                {
+                    assetsFile["targets"][frameworksection.Name][library.Name][area][key] = resources[key];
+                }
+            }
         }
     }
 }

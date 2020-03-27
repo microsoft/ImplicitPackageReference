@@ -5,13 +5,14 @@
     <AssemblyName>Microsoft.Build.ImplicitPackageReference</AssemblyName>
     <TargetFramework>net461</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.17-preview8</Version>
+    <Version>1.2.0-preview</Version>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <Description>Allows execution of a custom MSBuild targets file that will allow declaring transitive NuGet dependencies as direct NuGet dependencies.</Description>
     <Copyright>Copyright © Microsoft Corporation. All rights reserved.</Copyright>
     <PackageReleaseNotes>
       1.1.16:Allows execution of a custom MSBuild targets file that will allow declaring transitive NuGet dependencies as direct NuGet dependencies.
       1.1.17:Change Microsoft.Build.Framework and Mcirosoft.Build.Utilities to packagereferences
+      1.2.0:Changed To execution to before compile, so it changes ImplicitPackageReferences to full PackageReferences for compile time execution
     </PackageReleaseNotes>
   </PropertyGroup>
 

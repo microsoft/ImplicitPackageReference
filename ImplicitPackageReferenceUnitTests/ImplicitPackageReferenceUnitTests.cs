@@ -28,17 +28,17 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenTaskIsGivenSinglePackageTaskShouldEditJsonFileAndReturnTrue()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Http.Abstractions");
+            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.Spatial");
             implicitPacker.AssetsFilePath = "test.project.assets.json";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
 
             JObject assetsFile = JObject.Parse(File.ReadAllText("test.project.assets.json"));
-            Assert.IsNull(assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Http.Abstractions"]);
+            Assert.IsNull(assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.Spatial"]);
 
             Assert.IsTrue(implicitPacker.Execute());
 
             assetsFile = JObject.Parse(File.ReadAllText("test.project.assets.json"));
-            Assert.AreEqual("[2.0.1, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Http.Abstractions"]["version"]);
+            Assert.AreEqual("[7.6.1, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.Spatial"]["version"]);
         }
 
         [TestMethod]
@@ -64,24 +64,21 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenTaskIsGivenMultiplePackagesTaskShouldEditJsonFileAndReturnTrue()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.CodeAnalysis.Common");
-            TaskItem implicitDependency2 = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Routing.Abstractions");
-            TaskItem implicitDependency3 = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Routing");
+            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.OData.Edm");
+            TaskItem implicitDependency2 = new Microsoft.Build.Utilities.TaskItem("Microsoft.OData.Client");
 
             implicitPacker.AssetsFilePath = "test.project.assets.json";
-            implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency, implicitDependency2, implicitDependency3 };
+            implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency, implicitDependency2};
 
             JObject assetsFile = JObject.Parse(File.ReadAllText("test.project.assets.json"));
-            Assert.IsNull(assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.CodeAnalysis.Common"]);
-            Assert.IsNull(assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Routing"]);
-            Assert.IsNull(assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Routing.Abstractions"]);
+            Assert.IsNull(assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.OData.Edm"]);
+            Assert.IsNull(assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.OData.Client"]);
 
             Assert.IsTrue(implicitPacker.Execute());
 
             assetsFile = JObject.Parse(File.ReadAllText("test.project.assets.json"));
-            Assert.AreEqual("[2.9.0, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.CodeAnalysis.Common"]["version"]);
-            Assert.AreEqual("[2.0.1, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Routing"]["version"]);
-            Assert.AreEqual("[2.0.1, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Routing.Abstractions"]["version"]);
+            Assert.AreEqual("[7.6.1, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.OData.Edm"]["version"]);
+            Assert.AreEqual("[7.6.1, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.OData.Client"]["version"]);
         }
 
         [TestMethod]
@@ -170,19 +167,19 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenTaskHasPrivateAssetsSetSuppressParentsTrue()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Http");
+            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.OData.Core");
             implicitDependency.SetMetadata("privateAssets", "all");
             implicitPacker.AssetsFilePath = "test.project.assets.json";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
 
             JObject assetsFile = JObject.Parse(File.ReadAllText("test.project.assets.json"));
-            Assert.IsNull(assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Http"]);
+            Assert.IsNull(assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.OData.Core"]);
 
             Assert.IsTrue(implicitPacker.Execute());
 
             assetsFile = JObject.Parse(File.ReadAllText("test.project.assets.json"));
-            Assert.AreEqual("[2.0.1, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Http"]["version"]);
-            Assert.AreEqual("all", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Http"]["suppressParent"]);
+            Assert.AreEqual("[7.6.1, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.OData.Core"]["version"]);
+            Assert.AreEqual("all", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.OData.Core"]["suppressParent"]);
         }
 
         [TestMethod]
@@ -190,19 +187,19 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenTaskHasMultiplePrivateAssetsSetSuppressParentsTrue()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Hosting");
+            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.NETCore.Platforms");
             implicitDependency.SetMetadata("privateAssets", "contentFiles;analyzers");
             implicitPacker.AssetsFilePath = "test.project.assets.json";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
 
             JObject assetsFile = JObject.Parse(File.ReadAllText("test.project.assets.json"));
-            Assert.IsNull(assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Hosting"]);
+            Assert.IsNull(assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.NETCore.Platforms"]);
 
             Assert.IsTrue(implicitPacker.Execute());
 
             assetsFile = JObject.Parse(File.ReadAllText("test.project.assets.json"));
-            Assert.AreEqual("[2.0.1, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Hosting"]["version"]);
-            Assert.AreEqual("contentFiles;analyzers", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Hosting"]["suppressParent"]);
+            Assert.AreEqual("[1.1.0, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.NETCore.Platforms"]["version"]);
+            Assert.AreEqual("contentFiles;analyzers", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.NETCore.Platforms"]["suppressParent"]);
         }
     }
 
