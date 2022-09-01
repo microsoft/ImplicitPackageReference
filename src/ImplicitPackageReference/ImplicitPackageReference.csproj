@@ -3,15 +3,16 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.Build.ImplicitPackageReference</RootNamespace>
     <AssemblyName>Microsoft.Build.ImplicitPackageReference</AssemblyName>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.17</Version>
+    <Version>1.1.18</Version>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <Description>Allows execution of a custom MSBuild targets file that will allow declaring transitive NuGet dependencies as direct NuGet dependencies.</Description>
     <Copyright>Copyright © Microsoft Corporation. All rights reserved.</Copyright>
     <PackageReleaseNotes>
-      1.1.16:Allows execution of a custom MSBuild targets file that will allow declaring transitive NuGet dependencies as direct NuGet dependencies.
-      1.1.17:Change Microsoft.Build.Framework and Mcirosoft.Build.Utilities to packagereferences
+      1.1.18: Allow ImplicitPackageReference to work with multi-targeted builds
+      1.1.17: Change Microsoft.Build.Framework and Microsoft.Build.Utilities to packagereferences
+      1.1.16: Allows execution of a custom MSBuild targets file that will allow declaring transitive NuGet dependencies as direct NuGet dependencies.
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -22,15 +23,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="build" Visible="false" />
+    <None Include="$(OutputPath)\$(AssemblyName).targets" Pack="true" PackagePath="buildMultiTargeting" Visible="false" />
     <None Include="$(OutputPath)\$(AssemblyName).targets" Pack="true" PackagePath="build" Visible="false" />
-    <None Include="$(OutputPath)\Newtonsoft.Json.dll" Pack="true" PackagePath="build" Visible="false" />
-    <None Include="$(OutputPath)\Microsoft.Build.Framework.dll" Pack="true" PackagePath="build" Visible="false" />
-    <None Include="$(OutputPath)\Microsoft.Build.Utilities.Core.dll" Pack="true" PackagePath="build" Visible="false" />
+    
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="tools" Visible="false" />
+    <None Include="$(OutputPath)\Newtonsoft.Json.dll" Pack="true" PackagePath="tools" Visible="false" />
+    <None Include="$(OutputPath)\Microsoft.Build.Framework.dll" Pack="true" PackagePath="tools" Visible="false" />
+    <None Include="$(OutputPath)\Microsoft.Build.Utilities.Core.dll" Pack="true" PackagePath="tools" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Microsoft.Build.ImplicitPackageReference.targets">
+    <None Update="$(AssemblyName).targets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Newtonsoft.Json.dll">

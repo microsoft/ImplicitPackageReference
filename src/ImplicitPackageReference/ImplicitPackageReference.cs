@@ -42,6 +42,12 @@ namespace Microsoft.Build.ImplicitPackageReference
             this.log = log;
         }
 
+        public static void Main(string[] args)
+        {
+            AddImplicitPackageReferences instance = new AddImplicitPackageReferences();
+            instance.AssetsFilePath = args[1];
+        }
+
         public override bool Execute()
         {
             if(DependenciesToVersionAndPackage.Length == 0)
