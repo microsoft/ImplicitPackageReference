@@ -42,19 +42,14 @@ namespace Microsoft.Build.ImplicitPackageReference
             this.log = log;
         }
 
-        public static void Main(string[] args)
-        {
-            AddImplicitPackageReferences instance = new AddImplicitPackageReferences();
-            instance.AssetsFilePath = args[1];
-        }
-
         public override bool Execute()
         {
             if(DependenciesToVersionAndPackage.Length == 0)
             {
-                log.LogWarning("AddImplicitPackageReferences was not given any packages to version");
+                log.LogMessage("AddImplicitPackageReferences was not given any packages to version");
                 return true;
             }
+
             if (File.Exists(AssetsFilePath))
             {
                 bool versionlessPackagesFound = false;
