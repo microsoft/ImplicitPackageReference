@@ -6,7 +6,9 @@
 namespace Microsoft.Build.ImplicitPackageReference
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
@@ -46,9 +48,10 @@ namespace Microsoft.Build.ImplicitPackageReference
         {
             if(DependenciesToVersionAndPackage.Length == 0)
             {
-                log.LogWarning("AddImplicitPackageReferences was not given any packages to version");
+                log.LogMessage("AddImplicitPackageReferences was not given any packages to version");
                 return true;
             }
+
             if (File.Exists(AssetsFilePath))
             {
                 bool versionlessPackagesFound = false;
@@ -88,13 +91,15 @@ namespace Microsoft.Build.ImplicitPackageReference
                         {
                             JObject versionedDependency = new JObject();
 
-                            if (package.GetMetadata("PrivateAssets") == "")
+                            string includedAssets = ParseIncludedAssets(package);
+                            string suppressParent = ParseSuppressParent(package);
+                            if (includedAssets != null)
                             {
-                                versionedDependency.Add("suppressParent", "None");
+                                versionedDependency.Add("include", includedAssets);
                             }
-                            else
+                            if (suppressParent != null)
                             {
-                                versionedDependency.Add("suppressParent", package.GetMetadata("PrivateAssets"));
+                                versionedDependency.Add("suppressParent", suppressParent);
                             }
                             versionedDependency.Add("target", "Package");
                             versionedDependency.Add("version", "[" + nameAndVersion[1] + ", )");
@@ -145,6 +150,102 @@ namespace Microsoft.Build.ImplicitPackageReference
             }
 
             return true;
+        }
+
+        [Flags]
+        private enum AssetTypes
+        {
+            None = 0,
+            Compile = 1,
+            Runtime = 2,
+            ContentFiles = 4,
+            Build = 8,
+            Native = 16,
+            Analyzers = 32,
+            All = 63
+        }
+
+        private string ParseIncludedAssets(ITaskItem packageReference)
+        {
+            var includeAssetsMetadata = packageReference.GetMetadata("IncludeAssets");
+            var excludeAssetsMetadata = packageReference.GetMetadata("ExcludeAssets");
+
+            if (string.IsNullOrEmpty(includeAssetsMetadata) && string.IsNullOrEmpty(excludeAssetsMetadata))
+            {
+                return null;
+            }
+
+            var includeAssets = AssetTypes.All;
+            var excludeAssets = AssetTypes.None;
+
+            if (!string.IsNullOrEmpty(includeAssetsMetadata))
+            {
+                includeAssets = ParseAssetsMetadata(includeAssetsMetadata);
+            }
+            if (!string.IsNullOrEmpty(excludeAssetsMetadata))
+            {
+                excludeAssets = ParseAssetsMetadata(excludeAssetsMetadata);
+            }
+
+            var includedAssets = includeAssets & ~excludeAssets;
+
+            return AssetTypesToString(includedAssets);
+
+        }
+
+        private string ParseSuppressParent(ITaskItem packageReference)
+        {
+            var metadata = packageReference.GetMetadata("PrivateAssets");
+            if (string.IsNullOrEmpty(metadata))
+            {
+                return null;
+            }
+
+            return AssetTypesToString(ParseAssetsMetadata(metadata));
+        }
+
+        private AssetTypes ParseAssetsMetadata(string metadata)
+        {
+            AssetTypes assetType = AssetTypes.None;
+            foreach (string part in metadata.Split(';').Select(a => a.Trim()))
+            {
+               if (Enum.TryParse(part, true, out AssetTypes partType))
+               {
+                    assetType |= partType;
+               }
+            }
+
+            return assetType;                
+        }
+
+        private string AssetTypesToString(AssetTypes assetTypes)
+        {
+            if (assetTypes == AssetTypes.None)
+            {
+                return "None";
+            }
+
+            if (assetTypes == AssetTypes.All)
+            {
+                return "All";
+            }
+
+            List<string> parts = new List<string>();
+
+            foreach (AssetTypes value in Enum.GetValues(typeof(AssetTypes)))
+            {
+                if (value == AssetTypes.None || value == AssetTypes.All)
+                {
+                    continue;
+                }
+
+                if ((assetTypes & value) != AssetTypes.None)
+                {
+                    parts.Add(Enum.GetName(typeof(AssetTypes), value));
+                }
+            }
+
+            return string.Join(", ", parts);
         }
     }
 }

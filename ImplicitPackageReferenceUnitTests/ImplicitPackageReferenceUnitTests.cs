@@ -4,6 +4,7 @@
 // </copyright>
 // ------------------------------------------------------------------------------
 
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Build.ImplicitPackageReference;
 using Microsoft.Build.Utilities;
@@ -28,7 +29,7 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenTaskIsGivenSinglePackageTaskShouldEditJsonFileAndReturnTrue()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Http.Abstractions");
+            TaskItem implicitDependency = new TaskItem("Microsoft.AspNetCore.Http.Abstractions");
             implicitPacker.AssetsFilePath = "test.project.assets.json";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
 
@@ -46,7 +47,7 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenTaskIsGivenSinglePackageInNetCoreFrameworkTaskShouldEditJsonFileAndReturnTrue()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.NETCore.Platforms");
+            TaskItem implicitDependency = new TaskItem("Microsoft.NETCore.Platforms");
             implicitPacker.AssetsFilePath = "netcoreSample.json";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
 
@@ -64,9 +65,9 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenTaskIsGivenMultiplePackagesTaskShouldEditJsonFileAndReturnTrue()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.CodeAnalysis.Common");
-            TaskItem implicitDependency2 = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Routing.Abstractions");
-            TaskItem implicitDependency3 = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Routing");
+            TaskItem implicitDependency = new TaskItem("Microsoft.CodeAnalysis.Common");
+            TaskItem implicitDependency2 = new TaskItem("Microsoft.AspNetCore.Routing.Abstractions");
+            TaskItem implicitDependency3 = new TaskItem("Microsoft.AspNetCore.Routing");
 
             implicitPacker.AssetsFilePath = "test.project.assets.json";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency, implicitDependency2, implicitDependency3 };
@@ -89,7 +90,7 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenTaskIsGivenAPackageNotFoundInJsonFileTaskReturnsFalse()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("NotAPackage");
+            TaskItem implicitDependency = new TaskItem("NotAPackage");
 
             implicitPacker.AssetsFilePath = "test.project.assets.json";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
@@ -107,7 +108,7 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenJsonFileIsNotPresentTaskReturnsFalse()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Http.Abstractions");
+            TaskItem implicitDependency = new TaskItem("Microsoft.AspNetCore.Http.Abstractions");
 
             implicitPacker.AssetsFilePath = "NotHere.assets.json";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
@@ -121,7 +122,7 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenTaskIsPassedXMLFileTaskReturnsFalse()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Http.Abstractions");
+            TaskItem implicitDependency = new TaskItem("Microsoft.AspNetCore.Http.Abstractions");
             implicitPacker.AssetsFilePath = "WrongFile.xml";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
             Assert.IsFalse(implicitPacker.Execute());
@@ -133,7 +134,7 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenJsonFileIsMissingLibrarySectionTaskReturnsFalse()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Http.Abstractions");
+            TaskItem implicitDependency = new TaskItem("Microsoft.AspNetCore.Http.Abstractions");
             implicitPacker.AssetsFilePath = "MissingLibrary.json";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
 
@@ -151,7 +152,7 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenPackageIsMissingVersionNumberInJsonFileTaskReturnsFalse()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("WebApiContrib.Core");
+            TaskItem implicitDependency = new TaskItem("WebApiContrib.Core");
             implicitPacker.AssetsFilePath = "VersionlessPackage.json";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
 
@@ -170,7 +171,7 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenTaskHasPrivateAssetsSetSuppressParentsTrue()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Http");
+            TaskItem implicitDependency = new TaskItem("Microsoft.AspNetCore.Http");
             implicitDependency.SetMetadata("privateAssets", "all");
             implicitPacker.AssetsFilePath = "test.project.assets.json";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
@@ -182,7 +183,7 @@ namespace ImplicitPackageReferenceUnitTests
 
             assetsFile = JObject.Parse(File.ReadAllText("test.project.assets.json"));
             Assert.AreEqual("[2.0.1, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Http"]["version"]);
-            Assert.AreEqual("all", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Http"]["suppressParent"]);
+            Assert.AreEqual("All", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Http"]["suppressParent"]);
         }
 
         [TestMethod]
@@ -190,7 +191,7 @@ namespace ImplicitPackageReferenceUnitTests
         public void WhenTaskHasMultiplePrivateAssetsSetSuppressParentsTrue()
         {
             var implicitPacker = new AddImplicitPackageReferences(log);
-            TaskItem implicitDependency = new Microsoft.Build.Utilities.TaskItem("Microsoft.AspNetCore.Hosting");
+            TaskItem implicitDependency = new TaskItem("Microsoft.AspNetCore.Hosting");
             implicitDependency.SetMetadata("privateAssets", "contentFiles;analyzers");
             implicitPacker.AssetsFilePath = "test.project.assets.json";
             implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
@@ -202,8 +203,60 @@ namespace ImplicitPackageReferenceUnitTests
 
             assetsFile = JObject.Parse(File.ReadAllText("test.project.assets.json"));
             Assert.AreEqual("[2.0.1, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Hosting"]["version"]);
-            Assert.AreEqual("contentFiles;analyzers", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Hosting"]["suppressParent"]);
+            Assert.AreEqual("ContentFiles, Analyzers", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Hosting"]["suppressParent"]);
+        }
+
+        [TestMethod]
+        [DeploymentItem(@"test.project.assets.json")]
+        public void WhenTaskHasIncludeAssetsSetAssetsAreIncluded()
+        {
+            // Include, Exclude, expected
+            List<(string, string, string)> data = new List<(string, string, string)>()
+            {
+                ("all", null, "All"),
+                ("none", null, "None"),
+                ("compile; runtime", null, "Compile, Runtime"),
+                (null, "all", "None"),
+                (null, "none", "All"),
+                (null, "compile; runtime", "ContentFiles, Build, Native, Analyzers"),
+                ("all", "all", "None"),
+                ("none", "none", "None"),
+                ("all", "none", "All"),
+                ("none", "all", "None"),
+                ("all", "runtime", "Compile, ContentFiles, Build, Native, Analyzers"),
+                ("compile; runtime", "runtime", "Compile"),
+                ("compile; runtime", "all", "None"),
+                ("compile; runtime", "none", "Compile, Runtime"),
+            };
+            var oldFile = File.ReadAllText("test.project.assets.json");
+            foreach (var datum in data)
+            {
+                (string included, string excluded, string expected) = datum;
+
+                var implicitPacker = new AddImplicitPackageReferences(log);
+                TaskItem implicitDependency = new TaskItem("Microsoft.AspNetCore.Http");
+                if (included != null)
+                {
+                    implicitDependency.SetMetadata("includeAssets", included);
+                }
+                if (excluded != null)
+                {
+                    implicitDependency.SetMetadata("excludeAssets", excluded);
+                }
+
+                implicitPacker.AssetsFilePath = "test.project.assets.json";
+                implicitPacker.DependenciesToVersionAndPackage = new TaskItem[] { implicitDependency };
+
+                File.WriteAllText("test.project.assets.json", oldFile);
+                JObject assetsFile = JObject.Parse(File.ReadAllText("test.project.assets.json"));
+                Assert.IsNull(assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Http"]);
+
+                Assert.IsTrue(implicitPacker.Execute());
+
+                assetsFile = JObject.Parse(File.ReadAllText("test.project.assets.json"));
+                Assert.AreEqual("[2.0.1, )", assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Http"]["version"]);
+                Assert.AreEqual(expected, assetsFile["project"]["frameworks"]["netstandard2.0"]["dependencies"]["Microsoft.AspNetCore.Http"]["include"]);
+            }
         }
     }
-
 }
