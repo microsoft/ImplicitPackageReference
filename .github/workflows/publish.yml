@@ -1,0 +1,23 @@
+name: Publish to NuGet.org
+
+on:
+  push:
+    branches: [ "develop" ]
+
+jobs:
+  publish:
+    name: build, pack & publish
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Publish NuGet
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+        # Filepath of the project to be packaged, relative to root of repository
+        PROJECT_FILE_PATH: src/ImplicitPackageReference/ImplicitPackageReference.csproj
+        # NuGet package id, used for version detection & defaults to project name
+        PACKAGE_NAME: Microsoft.Build.ImplicitPackageReference
+        # API key to authenticate with NuGet server
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+
