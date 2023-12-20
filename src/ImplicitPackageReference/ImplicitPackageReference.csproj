@@ -5,11 +5,12 @@
     <AssemblyName>Microsoft.Build.ImplicitPackageReference</AssemblyName>
     <TargetFramework>net472</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <Description>Allows execution of a custom MSBuild targets file that will allow declaring transitive NuGet dependencies as direct NuGet dependencies.</Description>
     <Copyright>Copyright © Microsoft Corporation. All rights reserved.</Copyright>
     <PackageReleaseNotes>
+      1.2.1: Fix ImplicitPackageReference applying to all target frameworks
       1.2.0: Support for PrivateAssets, ExcludeAssets, and IncludeAssets metadata, matching the behavior of PackageReference
       1.1.18: Allow ImplicitPackageReference to work with multi-targeted builds
       1.1.17: Change Microsoft.Build.Framework and Microsoft.Build.Utilities to packagereferences
@@ -18,7 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="16.4.0" PrivateAssets="all" />
+    <PackageReference Include="NuGet.Frameworks" Version="6.6.1" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Build" Version="16.4.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.4.0" PrivateAssets="all" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" PrivateAssets="all" />
   </ItemGroup>
