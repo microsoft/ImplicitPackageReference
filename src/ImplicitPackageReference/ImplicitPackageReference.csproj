@@ -32,6 +32,7 @@
     <None Include="$(OutputPath)\Newtonsoft.Json.dll" Pack="true" PackagePath="tools" Visible="false" />
     <None Include="$(OutputPath)\Microsoft.Build.Framework.dll" Pack="true" PackagePath="tools" Visible="false" />
     <None Include="$(OutputPath)\Microsoft.Build.Utilities.Core.dll" Pack="true" PackagePath="tools" Visible="false" />
+    <None Include="$(OutputPath)\NuGet.Frameworks.dll" Pack="true" PackagePath="tools" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>
