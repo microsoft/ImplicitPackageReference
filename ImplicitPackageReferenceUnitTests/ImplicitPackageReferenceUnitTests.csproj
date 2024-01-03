@@ -13,16 +13,7 @@
     <ProjectReference Include="..\src\ImplicitPackageReference\ImplicitPackageReference.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="MissingLibrary.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="netcoreSample.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="test.project.assets.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="VersionlessPackage.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="WrongFile.xml">

@@ -14,6 +14,7 @@ namespace Microsoft.Build.ImplicitPackageReference
     using Microsoft.Build.Utilities;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using NuGet.Frameworks;
 
     /// <summary>
     /// This msbuild task is designed to parse a project.assets.json file and be able to take a string of dependiencies that need versions and be able to find the correct version
@@ -26,11 +27,12 @@ namespace Microsoft.Build.ImplicitPackageReference
         /// </summary>
         [Required]
         public string AssetsFilePath { get; set; }
+
         /// <summary>
-        /// This is a string of packages that are ; separated that need versions
+        /// The implicit package references
         /// </summary>
         [Required]
-        public ITaskItem[] DependenciesToVersionAndPackage { get; set; }
+        public ITaskItem[] ImplicitPackageReferences { get; set; }
 
         private ILogger log { get; set; }
 
@@ -46,38 +48,54 @@ namespace Microsoft.Build.ImplicitPackageReference
 
         public override bool Execute()
         {
-            if(DependenciesToVersionAndPackage.Length == 0)
+            if(ImplicitPackageReferences.Length == 0)
             {
                 log.LogMessage("AddImplicitPackageReferences was not given any packages to version");
                 return true;
             }
 
-            if (File.Exists(AssetsFilePath))
+            if (!File.Exists(AssetsFilePath))
             {
-                bool versionlessPackagesFound = false;
-                StringBuilder namesOfVersionlessPackages = new StringBuilder();
-                JObject assetsFile;
-                try
-                {
-                    assetsFile = JObject.Parse(File.ReadAllText(AssetsFilePath));
-                }
-                catch (Exception e)
-                {
-                    log.LogError("AddImplicitPackageReferences failed, could not parse file " + AssetsFilePath + ". Exception:" + e.Message);
-                    return false;
-                }
+                log.LogError("Project.assets.json path does not exist at: " + AssetsFilePath);
+                return false;
+            }
+            bool versionlessPackagesFound = false;
+            StringBuilder namesOfVersionlessPackages = new StringBuilder();
+            JObject assetsFile;
+            try
+            {
+                assetsFile = JObject.Parse(File.ReadAllText(AssetsFilePath));
+            }
+            catch (Exception e)
+            {
+                log.LogError("AddImplicitPackageReferences failed, could not parse file " + AssetsFilePath + ". Exception:" + e.Message);
+                return false;
+            }
 
-                if (assetsFile["libraries"] == null)
-                {
-                    log.LogError("AddImplicitPackageReferences failed, " + AssetsFilePath + " missing Libraries section.");
-                    return false;
-                }
+            if (assetsFile["libraries"] == null)
+            {
+                log.LogError("AddImplicitPackageReferences failed, " + AssetsFilePath + " missing Libraries section.");
+                return false;
+            }
 
-                foreach (var package in DependenciesToVersionAndPackage)
-                {
-                    bool found = false;
+            foreach (var package in ImplicitPackageReferences)
+            {
+                bool found = false;
 
-                    foreach (var library in assetsFile["libraries"].Children<JProperty>())
+                string includedAssets = ParseIncludedAssets(package);
+                string suppressParent = ParseSuppressParent(package);
+                NuGetFramework desiredFramework = ParseTargetFramework(package);
+
+                foreach (var projectFramework in assetsFile["project"]["frameworks"].Children<JProperty>())
+                {
+                    NuGetFramework currentFramework = NuGetFramework.Parse(projectFramework.Name);
+                
+                    if (!desiredFramework.IsAny && currentFramework != desiredFramework)
+                    {
+                        continue;
+                    }
+
+                    foreach (var library in assetsFile["targets"][currentFramework.ToString()].Children<JProperty>())
                     {
                         //Name is index [0], Version is index [1]
                         string[] nameAndVersion = library.Name.Split('/');
@@ -87,69 +105,75 @@ namespace Microsoft.Build.ImplicitPackageReference
                             return false;
                         }
 
-                        if (nameAndVersion[0] == package.ItemSpec)
+                        (string packageId, string version) = (nameAndVersion[0], nameAndVersion[1]);
+
+                        if (packageId == package.ItemSpec)
                         {
-                            JObject versionedDependency = new JObject();
+                            var dependencies = projectFramework.Value["dependencies"];
 
-                            string includedAssets = ParseIncludedAssets(package);
-                            string suppressParent = ParseSuppressParent(package);
-                            if (includedAssets != null)
+                            if (dependencies[packageId] == null)
                             {
-                                versionedDependency.Add("include", includedAssets);
-                            }
-                            if (suppressParent != null)
-                            {
-                                versionedDependency.Add("suppressParent", suppressParent);
-                            }
-                            versionedDependency.Add("target", "Package");
-                            versionedDependency.Add("version", "[" + nameAndVersion[1] + ", )");
+                                JObject versionedDependency = new JObject();
 
-                            foreach (var framework in assetsFile["project"]["frameworks"].Children<JProperty>())
-                            {
-                                if (framework.Value["dependencies"][package.ItemSpec] == null)
+                                if (includedAssets != null)
                                 {
-                                    assetsFile["project"]["frameworks"][framework.Name]["dependencies"][nameAndVersion[0]] = versionedDependency;
+                                    versionedDependency.Add("include", includedAssets);
                                 }
+                                if (suppressParent != null)
+                                {
+                                    versionedDependency.Add("suppressParent", suppressParent);
+                                }
+                                versionedDependency.Add("target", "Package");
+                                versionedDependency.Add("version", "[" + version + ", )");
+
+                                dependencies[packageId] = versionedDependency;
                             }
 
                             found = true;
+
                             break;
                         }
                     }
-                    if (!found)
-                    {
-                        versionlessPackagesFound = true;
-                        namesOfVersionlessPackages.Append(package.ItemSpec).Append(", ");
-                    }
                 }
-
-                if (versionlessPackagesFound)
+                if (!found)
                 {
-                    log.LogError("AddImplicitPackageReferences failed, could not find packages in known dependencies for: " + namesOfVersionlessPackages.ToString().Substring(0, namesOfVersionlessPackages.Length - 1));
-                    return false;
-                }
-                try
-                {
-                    using (StreamWriter file = File.CreateText(AssetsFilePath))
-                    {
-                        JsonSerializer serializer = new JsonSerializer();
-                        serializer.Formatting = Formatting.Indented;
-                        serializer.Serialize(file, assetsFile);
-                    }
-                }
-                catch (Exception e)
-                {
-                    log.LogError("AddImplicitPackageReferences failed, failed to write out changes to " + AssetsFilePath + ". Exception:" + e.Message);
-                    return false;
+                    versionlessPackagesFound = true;
+                    namesOfVersionlessPackages.Append(package.ItemSpec).Append(", ");
                 }
             }
-            else
+
+            if (versionlessPackagesFound)
             {
-                log.LogError("AddImplicitPackageReferences failed, could not find: " + AssetsFilePath);
+                log.LogError("AddImplicitPackageReferences failed, could not find packages in known dependencies for: " + namesOfVersionlessPackages.ToString().Substring(0, namesOfVersionlessPackages.Length - 1));
+                return false;
+            }
+            try
+            {
+                using (StreamWriter file = File.CreateText(AssetsFilePath))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Formatting = Formatting.Indented;
+                    serializer.Serialize(file, assetsFile);
+                }
+            }
+            catch (Exception e)
+            {
+                log.LogError("AddImplicitPackageReferences failed, failed to write out changes to " + AssetsFilePath + ". Exception:" + e.Message);
                 return false;
             }
 
             return true;
+        }
+
+        private NuGetFramework ParseTargetFramework(ITaskItem packageReference)
+        {
+            var targetFramework = packageReference.GetMetadata("TargetFramework");
+            if (string.IsNullOrEmpty(targetFramework))
+            {
+                return NuGetFramework.AnyFramework;
+            }
+
+            return NuGetFramework.Parse(targetFramework);
         }
 
         [Flags]
@@ -190,7 +214,6 @@ namespace Microsoft.Build.ImplicitPackageReference
             var includedAssets = includeAssets & ~excludeAssets;
 
             return AssetTypesToString(includedAssets);
-
         }
 
         private string ParseSuppressParent(ITaskItem packageReference)

@@ -2,9 +2,27 @@
 <Project>
   <UsingTask AssemblyFile="..\tools\Microsoft.Build.ImplicitPackageReference.dll"
              TaskName="AddImplicitPackageReferences"/>
-  
-  <Target Name="AddImplicitPackageReferences" BeforeTargets="$(PackDependsOn)" Condition="'@(ImplicitPackageReference)' != ''" >
-    <AddImplicitPackageReferences AssetsFilePath="$(ProjectAssetsFile)" DependenciesToVersionAndPackage="@(ImplicitPackageReference)" />
+
+  <PropertyGroup>
+    <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn);AddImplicitPackageReferences</GenerateNuspecDependsOn>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ImplicitPackageReference>
+      <TargetFramework>$(TargetFramework)</TargetFramework>
+    </ImplicitPackageReference>
+  </ItemDefinitionGroup>
+
+  <Target Name="ResolveImplicitPackageReferencesPerFramework">
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="ReturnImplicitPackageReferences" Properties="TargetFramework=%(_TargetFrameworks.Identity)">
+      <Output TaskParameter="TargetOutputs" ItemName="ImplicitPackageReference" />
+    </MSBuild>
+  </Target>
+
+  <Target Name="ReturnImplicitPackageReferences" Returns="@(ImplicitPackageReference)" />
+
+  <Target Name="AddImplicitPackageReferences" DependsOnTargets="ResolveImplicitPackageReferencesPerFramework" >
+    <AddImplicitPackageReferences AssetsFilePath="$(ProjectAssetsFile)" ImplicitPackageReferences="@(ImplicitPackageReference)" Condition="@(ImplicitPackageReference)!=''" />
   </Target>
 </Project>
 
