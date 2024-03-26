@@ -86,11 +86,17 @@ namespace Microsoft.Build.ImplicitPackageReference
                 string suppressParent = ParseSuppressParent(package);
                 NuGetFramework desiredFramework = ParseTargetFramework(package);
 
+                // When multi-targeting, we want to only operate on specific target frameworks
+                if (desiredFramework.IsAny)
+                {
+                    continue;
+                }
+
                 foreach (var projectFramework in assetsFile["project"]["frameworks"].Children<JProperty>())
                 {
                     NuGetFramework currentFramework = NuGetFramework.Parse(projectFramework.Name);
                 
-                    if (!desiredFramework.IsAny && currentFramework != desiredFramework)
+                    if (currentFramework != desiredFramework)
                     {
                         continue;
                     }

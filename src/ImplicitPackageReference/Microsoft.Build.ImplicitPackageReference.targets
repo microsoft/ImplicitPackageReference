@@ -3,25 +3,24 @@
   <UsingTask AssemblyFile="..\tools\Microsoft.Build.ImplicitPackageReference.dll"
              TaskName="AddImplicitPackageReferences"/>
 
-  <PropertyGroup>
-    <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn);AddImplicitPackageReferences</GenerateNuspecDependsOn>
-  </PropertyGroup>
-
   <ItemDefinitionGroup>
     <ImplicitPackageReference>
       <TargetFramework>$(TargetFramework)</TargetFramework>
     </ImplicitPackageReference>
   </ItemDefinitionGroup>
 
-  <Target Name="ResolveImplicitPackageReferencesPerFramework">
-    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="ReturnImplicitPackageReferences" Properties="TargetFramework=%(_TargetFrameworks.Identity)">
-      <Output TaskParameter="TargetOutputs" ItemName="ImplicitPackageReference" />
-    </MSBuild>
-  </Target>
-
   <Target Name="ReturnImplicitPackageReferences" Returns="@(ImplicitPackageReference)" />
 
-  <Target Name="AddImplicitPackageReferences" DependsOnTargets="ResolveImplicitPackageReferencesPerFramework" >
+  <Target Name="AddImplicitPackageReferences" Condition="$(TargetFramework)=='' OR $(TargetFrameworks)==''" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+    <!-- In single-targetted builds, _TargetFramework is defined -->
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="ReturnImplicitPackageReferences" Properties="TargetFramework=%(_TargetFramework.Identity)" Condition="@(_TargetFramework)!=''">
+      <Output TaskParameter="TargetOutputs" ItemName="ImplicitPackageReference" />
+    </MSBuild>
+    <!-- In single-targetted builds, _TargetFrameworks is defined -->
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="ReturnImplicitPackageReferences" Properties="TargetFramework=%(_TargetFrameworks.Identity)" Condition="@(_TargetFrameworks)!='' AND @(_TargetFramework)==''">
+      <Output TaskParameter="TargetOutputs" ItemName="ImplicitPackageReference" />
+    </MSBuild>
+
     <AddImplicitPackageReferences AssetsFilePath="$(ProjectAssetsFile)" ImplicitPackageReferences="@(ImplicitPackageReference)" Condition="@(ImplicitPackageReference)!=''" />
   </Target>
 </Project>
